@@ -29,8 +29,9 @@ app.use(morgan("dev"));
 
 //routes declaration
 app.get("/", (req, res) => {
-  res.send("Hello, Vercel!");
+  res.send("🚀 Liberty Cart is live and ready to roll! 🛒");
 });
+
 
 app.use(`${apiVersion}/users`, userRouter);
 app.use(`${apiVersion}/product`, productRouter);
