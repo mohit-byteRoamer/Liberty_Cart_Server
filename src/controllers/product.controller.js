@@ -7,8 +7,8 @@ import { faker } from "@faker-js/faker";
 import { inValidatorCache } from "../utils/cacheHandler.js";
 
 const createProduct = asyncHandler(async (req, res) => {
+  
   const { name, price, stock, category } = req.body;
-  console.log(name, price, stock, category);
   if (
     [name, price, stock, category].some((val) => val == "" || val == undefined)
   ) {

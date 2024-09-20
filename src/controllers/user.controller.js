@@ -25,21 +25,15 @@ const registerUser = asyncHandler(async (req, res) => {
   //   new ApiError(400, "All fields are required");
   // }
 
-  if (
-    [userName, email, password].some(
-      (field) => field?.trim() == ""
-    )
-  ) {
-    return res
-      .status(400)
-      .json(new ApiError(400, "All fields are required"));
+  if ([userName, email, password].some((field) => field?.trim() == "")) {
+    return res.status(400).json(new ApiError(400, "All fields are required"));
   }
 
   const existedUser = await user.findOne({ $or: [{ userName }, { email }] });
 
   if (existedUser !== null) {
     return res
-      .status(209)
+      .status(409)
       .json(new ApiError(409, "User with email or username already exists"));
   }
   // const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -64,7 +58,11 @@ const registerUser = asyncHandler(async (req, res) => {
     .findById(saveUser._id)
     .select("-password -refreshToken"); // To Unselect Properties
   if (!createUser) {
-    throw new ApiError(500, "Something went wrong while registering the user");
+    return res
+      .status(500)
+      .json(
+        new ApiError(500, "Something went wrong while registering the user")
+      );
   } else {
     return res
       .status(201)
@@ -86,13 +84,11 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const User = await user.findOne({ $or: [{ email }, { userName }] });
   if (!User) {
-      return res
-        .status(409)
-        .json(new ApiError(409, "User not found"));
+    return res.status(409).json(new ApiError(409, "User not found"));
   }
   const isPasswordCorrect = await User.isPasswordCorrect(password);
   if (!isPasswordCorrect) {
-     return res.status(401).json(new ApiError(401, "Incorrect password"));
+    return res.status(401).json(new ApiError(401, "Incorrect password"));
   }
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     User._id

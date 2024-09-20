@@ -13,6 +13,8 @@ export const AuthMiddleWares = () => {
 // and last assign user in req.user and call next function
 export const verifyJWT = asyncHandler(async (req, _, next) => {
   try {
+  console.log("MOHIT");
+    
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
@@ -34,6 +36,8 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
 });
 
 export const isAdmin = (req, _, next) => {
+  console.log("ISADMIN");
+  
   if (req.user.role !== "admin") {
     throw new ApiError(403, "Permission denied. User is not an admin");
   }

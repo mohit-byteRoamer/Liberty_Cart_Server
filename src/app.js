@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+
 //routes import
 import userRouter from "./routes/user.routes.js";
 import productRouter from "./routes/product.routes.js";
@@ -10,6 +11,7 @@ import orderRouter from "./routes/order.routes.js";
 import bodyParser from "body-parser"; // Importing body-parser
 import paymentRouter from "./routes/payment.routes.js";
 import dashboard from "./routes/stats.routes.js";
+import setupSwagger from "../swaggerSetup.js";
 
 export const myCache = new NodeCache();
 
@@ -26,17 +28,16 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 app.use(morgan("dev"));
-
+setupSwagger(app);
 //routes declaration
 app.get("/", (req, res) => {
   res.send("🚀 Liberty Cart is live and ready to roll! 🛒");
 });
 
-
-app.use(`${apiVersion}/users`, userRouter);
-app.use(`${apiVersion}/product`, productRouter);
-app.use(`${apiVersion}/order`, orderRouter);
-app.use(`${apiVersion}/payment`, paymentRouter);
-app.use(`${apiVersion}/dashboard`, dashboard);
+app.use(`/api/v1/users`, userRouter);
+app.use(`/api/v1/product`, productRouter);
+app.use(`/api/v1/order`, orderRouter);
+app.use(`/api/v1/payment`, paymentRouter);
+app.use(`/api/v1/dashboard`, dashboard);
 
 export { app };
