@@ -11,10 +11,8 @@ export const AuthMiddleWares = () => {
 // second verify with secret key
 // now you have user id after verify token and find user by id and throw a error if user not exist
 // and last assign user in req.user and call next function
-export const verifyJWT = asyncHandler(async (req, _, next) => {
+export const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
-    console.log("MOHIT");
-
     const token =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
