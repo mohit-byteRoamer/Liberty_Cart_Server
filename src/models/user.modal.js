@@ -5,11 +5,6 @@ import validator from "validator";
 
 const UserModel = new Schema(
   {
-    // _id: {
-    //   unique: true,
-    //   type: String,
-    //   required: [true, "Please enter ID"],
-    // },
     email: {
       unique: [true, "Email already exist"],
       type: String,
@@ -27,37 +22,22 @@ const UserModel = new Schema(
     },
     avatar: {
       type: String,
-      // required: [true, "Avatar is required"],
+      required: [true, "Avatar is required"],
     },
     role: {
       type: String,
       enum: ["admin", "user"],
       default: "admin",
     },
-    gender: {
-      type: String,
-      enum: ["male", "female"],
-      // required: [true, "Please enter gender"],
-    },
-    dob: {
-      type: Date,
-      // required: [true, "Please enter Dob"],
-    },
-
     fullName: {
       type: String,
-      // required: [true, "Full name is required"],
+      required: [true, "Full name is required"],
       index: true,
-    },
-
-    coverImage: {
-      type: String,
     },
     password: {
       type: String,
       required: [true, "Password is required"],
     },
-    watchHistory: [{ type: Schema.Types.ObjectId, ref: "video" }],
     refreshToken: {
       type: String,
     },

@@ -6,26 +6,14 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
-// - - - - - Step for register user - - - - -
-// Unpack Body
-// Check Required item is empty
-// Check user exist in db with email
-// Get path of file like image PDF
-// upload image on cloud
-// Then try to Create User
-// return user with not necessary like password refresh-token
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { userName, email, fullName, avatar, coverImage, password } = req.body;
-  // if (
-  //   [userName, email, fullName, avatar, password].some(
-  //     (field) => field?.trim() == ""
-  //   )
-  // ) {
-  //   new ApiError(400, "All fields are required");
-  // }
+  const { email, userName, avatar, role, fullName, password } = req.body;
 
-  if ([userName, email, password].some((field) => field?.trim() == "")) {
+  if ([userName, email, fullName, avatar, role, password].some(
+      (field) => field?.trim() == ""
+    )
+  ) {
     return res.status(400).json(new ApiError(400, "All fields are required"));
   }
 
@@ -36,24 +24,16 @@ const registerUser = asyncHandler(async (req, res) => {
       .status(409)
       .json(new ApiError(409, "User with email or username already exists"));
   }
-  // const avatarLocalPath = req.files?.avatar[0]?.path;
-  // const coverImageLocalPath = req.files?.coverImage[0]?.path;
-  // if (!avatarLocalPath) {
-  //   throw new ApiError(400, "Avatar file is required");
-  // }
-  // const isUploadAvatar = await uploadOnCloudinary(avatarLocalPath);
-  // const isUploadCoverImage = await uploadOnCloudinary(coverImageLocalPath);
-  // if (!isUploadAvatar) {
-  //   throw new ApiError(400, "Avatar file is required");
-  // }
+
   const saveUser = await user.create({
     userName: userName.toLowerCase(),
     email,
     fullName,
-    // avatar: isUploadAvatar?.url,
-    // coverImage: isUploadCoverImage?.url || "",
+    avatar,
+    role,
     password,
   });
+
   const createUser = await user
     .findById(saveUser._id)
     .select("-password -refreshToken"); // To Unselect Properties
@@ -70,11 +50,6 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// - - - - - Step for login user - - - - -
-// Check Required filed is empty
-// Check user exist in db with email
-// Check password is correct
-// Create refresh tokens
 const loginUser = asyncHandler(async (req, res) => {
   const { email, userName, password } = req.body;
 
