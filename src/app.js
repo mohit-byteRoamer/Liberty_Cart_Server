@@ -12,6 +12,7 @@ import bodyParser from "body-parser"; // Importing body-parser
 import paymentRouter from "./routes/payment.routes.js";
 import dashboard from "./routes/stats.routes.js";
 import setupSwagger from "../swaggerSetup.js";
+import commonRouter from "./routes/common.routes.js";
 
 export const myCache = new NodeCache();
 
@@ -35,9 +36,12 @@ app.get("/", (req, res) => {
 });
 
 app.use(`/api/v1/users`, userRouter);
+app.use(`/api/v1/common`, userRouter);
 app.use(`/api/v1/product`, productRouter);
 app.use(`/api/v1/order`, orderRouter);
 app.use(`/api/v1/payment`, paymentRouter);
 app.use(`/api/v1/dashboard`, dashboard);
+app.use(`/api/v1/common`, commonRouter);
+
 
 export { app };
