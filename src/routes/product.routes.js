@@ -24,7 +24,6 @@ router
   .post(
     verifyJWT,
     isAdmin,
-    upload.fields([{ name: "photo", maxCount: 1 }]),
     createProduct
   );
 router.route("/category").get(verifyJWT, isAdmin, getProductCategory);

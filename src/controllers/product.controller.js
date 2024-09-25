@@ -8,9 +8,11 @@ import { inValidatorCache } from "../utils/cacheHandler.js";
 
 const createProduct = asyncHandler(async (req, res) => {
   
-  const { name, price, stock, category } = req.body;
+  const { name, price, stock, category, photo } = req.body;
   if (
-    [name, price, stock, category].some((val) => val == "" || val == undefined)
+    [name, price, stock, category, photo].some(
+      (val) => val == "" || val == undefined
+    )
   ) {
     throw new ApiError(400, "All fields are required");
   }
@@ -20,9 +22,8 @@ const createProduct = asyncHandler(async (req, res) => {
     price,
     stock,
     category,
-    // photo: productImage?.path,
+    photo
   });
-  // await inValidatorCache({ Product: true });
   return res
     .status(200)
     .json(new ApiResponse(200, Product, "Product Created Successfully"));

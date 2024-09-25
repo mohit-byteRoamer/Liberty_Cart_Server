@@ -465,6 +465,9 @@
                 },
                 "category": {
                   "example": "any"
+                },
+                "photo": {
+                  "example": "any"
                 }
               }
             }

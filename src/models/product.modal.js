@@ -8,7 +8,7 @@ const ProductModal = new Schema(
     },
     photo: {
       type: String,
-      // required: [true, "Product photo is required field"],
+      required: [true, "Product photo is required field"],
     },
     price: {
       type: Number,
