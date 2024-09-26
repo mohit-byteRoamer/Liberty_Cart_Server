@@ -10,12 +10,13 @@ import mongoose from "mongoose";
 const registerUser = asyncHandler(async (req, res) => {
   const { email, userName, avatar, role, fullName, password } = req.body;
 
-  if ([userName, email, fullName, avatar, role, password].some(
-      (field) => field?.trim() == ""
-    )
-  ) {
-    return res.status(400).json(new ApiError(400, "All fields are required"));
-  }
+ if (
+   [userName, email, fullName, avatar, role, password].some(
+     (field) => !field || field.trim() === ""
+   )
+ ) {
+   return res.status(400).json(new ApiError(400, "All fields are required"));
+ }
 
   const existedUser = await user.findOne({ $or: [{ userName }, { email }] });
 
