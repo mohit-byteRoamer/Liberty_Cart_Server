@@ -9,14 +9,14 @@ import { inValidatorCache } from "../utils/cacheHandler.js";
 const createProduct = asyncHandler(async (req, res) => {
   
   const { name, price, stock, category, photo } = req.body;
-  if (
-    [name, price, stock, category, photo].some(
-      (val) => val == "" || val == undefined
-    )
-  ) {
-    throw new ApiError(400, "All fields are required");
-  }
-  const productImage = req.file;
+   if (
+     [name, price, stock, category, photo].some(
+       (field) => !field || field.trim() === ""
+     )
+   ) {
+     return res.status(400).json(new ApiError(400, "All fields are required"));
+   }
+
   const Product = await product.create({
     name,
     price,

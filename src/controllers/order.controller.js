@@ -1,6 +1,5 @@
 import { myCache } from "../app.js";
 import { Order } from "../models/order.modal.js";
-import { user } from "../models/user.modal.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
