@@ -43,6 +43,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 });
 
 export const isAdmin = (req, _, next) => {
+  
   if (req.user.role !== "admin") {
     throw new ApiError(403, "Permission denied. User is not an admin");
   }
