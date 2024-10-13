@@ -20,8 +20,8 @@ const cartSchema = new mongoose.Schema(
     },
     action: {
       type: String,
-      enum: ["increase", "decrease", "remove"],
-      default: "increase",
+      enum: ["increase", "decrease", "add"],
+      default: "add",
     },
   },
   { timestamps: true }

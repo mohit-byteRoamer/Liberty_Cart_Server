@@ -7,7 +7,7 @@ export const updateProductToCart = async (req, res) => {
 
     let existingCartProduct = await Cart.findOne({ userId, productId });
 
-    if (existingCartProduct && action == "increase") {
+    if (existingCartProduct && (action == "increase" || action == "add")) {
       existingCartProduct.quantity += 1;
       await existingCartProduct.save();
       return res.status(200).json({
@@ -25,20 +25,20 @@ export const updateProductToCart = async (req, res) => {
         message: "Product quantity updated in the cart",
         cartProduct: existingCartProduct,
       });
+    } else if (!existingCartProduct) {
+      const newCartProduct = new Cart({
+        userId,
+        productId,
+        quantity: 1,
+      });
+
+      await newCartProduct.save();
+
+      return res.status(201).json({
+        message: "Product added to the cart",
+        cartProduct: newCartProduct,
+      });
     }
-
-    const newCartProduct = new Cart({
-      userId,
-      productId,
-      quantity: 1,
-    });
-
-    await newCartProduct.save();
-
-    return res.status(201).json({
-      message: "Product added to the cart",
-      cartProduct: newCartProduct,
-    });
   } catch (error) {
     console.log(error, "updateProductToCart", "1");
 
@@ -68,10 +68,10 @@ export const getCartProducts = async (req, res) => {
 
 export const deleteCartProduct = async (req, res) => {
   try {
-    const userId = req.user.id; 
-    const productId = req.params.id; 
+    const userId = req.user.id;
+    const cartItemId = req.params.id;
 
-    const result = await Cart.findOneAndDelete({ userId, productId });
+    const result = await Cart.findOneAndDelete({ userId, _id: cartItemId });
 
     if (!result) {
       return res.status(404).json({ message: "Product not found in cart" });
@@ -79,6 +79,8 @@ export const deleteCartProduct = async (req, res) => {
 
     return res.status(200).json({ message: "Product removed from cart" });
   } catch (error) {
-    return res.status(500).json({ message: "Error removing product from cart", error });
+    return res
+      .status(500)
+      .json({ message: "Error removing product from cart", error });
   }
 };
