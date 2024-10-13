@@ -20,7 +20,7 @@ router.route("/all").get(verifyJWT, getAllProducts);
 
 // Admin Router
 router.route("/new").post(verifyJWT, isAdmin, createProduct);
-router.route("/category").get(verifyJWT, isAdmin, getProductCategory);
+router.route("/category").get(verifyJWT, getProductCategory);
 router.route("/admin-products").get(verifyJWT, isAdmin, getAdminProducts);
 
 // Common
