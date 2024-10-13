@@ -55,7 +55,7 @@ export const getCartProducts = async (req, res) => {
     const cartProducts = await Cart.find({ userId }).populate("productId");
 
     if (!cartProducts || cartProducts.length === 0) {
-      return res.status(404).json({ message: "No products found in the cart" });
+      return res.status(200).json([]);
     }
 
     return res.status(200).json(cartProducts);
