@@ -6,6 +6,10 @@ const ProductModal = new Schema(
       type: String,
       required: [true, "Product name is required field"],
     },
+    description: {
+      type: String,
+      required: [true, "Description name is required field"],
+    },
     photo: {
       type: String,
       required: [true, "Product photo is required field"],

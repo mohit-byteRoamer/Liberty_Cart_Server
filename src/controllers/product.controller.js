@@ -7,22 +7,22 @@ import { faker } from "@faker-js/faker";
 import { inValidatorCache } from "../utils/cacheHandler.js";
 
 const createProduct = asyncHandler(async (req, res) => {
-  
-  const { name, price, stock, category, photo } = req.body;
-   if (
-     [name, price, stock, category, photo].some(
-       (field) => !field || field.trim() === ""
-     )
-   ) {
-     return res.status(400).json(new ApiError(400, "All fields are required"));
-   }
+  const { name, price, stock, category, photo, description } = req.body;
+  if (
+    [name, price, stock, category, photo, description].some(
+      (field) => !field || field.trim() === ""
+    )
+  ) {
+    return res.status(400).json(new ApiError(400, "All fields are required"));
+  }
 
   const Product = await product.create({
     name,
     price,
     stock,
     category,
-    photo
+    photo,
+    description,
   });
   return res
     .status(200)
@@ -159,7 +159,6 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 const getAllProducts = asyncHandler(async (req, res) => {
-  
   const { search, sort, category, price } = req.query;
   const page = Number(req.query.page) || 1;
   const limit = Number(process.env.PRODUCT_PER_PAGE) || 10;
@@ -213,31 +212,3 @@ export {
   getAllProducts,
 };
 
-const generateRandomProductData = async (count) => {
-  const products = [];
-
-  for (let i = 0; i < count; i++) {
-    const name = faker.commerce.productName();
-    const price = faker.commerce.price({ min: 1500, max: 3500 });
-    const photo =
-      "https://images.unsplash.com/photo-1668595472880-56b04e416b2f?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-    const stock = faker.commerce.price({ min: 0, max: 1000 });
-    const category = faker.commerce.department();
-    const createdAt = faker.date.past().toISOString();
-    const updatedAt = faker.date.recent().toISOString();
-    const product = {
-      name,
-      price,
-      photo,
-      stock,
-      category,
-      createdAt,
-      updatedAt,
-      _v: 0, // Assuming you want to set _v to 0
-    };
-
-    products.push(product);
-  }
-  await product.create(products);
-  return products;
-};
