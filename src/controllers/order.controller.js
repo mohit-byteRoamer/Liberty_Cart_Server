@@ -6,9 +6,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { inValidatorCache } from "../utils/cacheHandler.js";
 
 const newOrder = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
   const {
     shippingInfo,
-    user,
     subTotal,
     tax,
     shippingCharges,
@@ -21,13 +21,11 @@ const newOrder = asyncHandler(async (req, res) => {
   if (
     [
       shippingInfo,
-      user,
       subTotal,
       tax,
       shippingCharges,
       discount,
       total,
-      status,
       orderItems,
     ].some((val) => val == "" || val == undefined)
   ) {
@@ -36,13 +34,13 @@ const newOrder = asyncHandler(async (req, res) => {
 
   const order = await Order.create({
     shippingInfo,
-    user,
+    user: userId,
     subTotal,
     tax,
     shippingCharges,
     discount,
     total,
-    status,
+    status:"Processing",
     orderItems,
   });
   await inValidatorCache({ order: true });
