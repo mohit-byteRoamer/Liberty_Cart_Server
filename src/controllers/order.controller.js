@@ -14,22 +14,15 @@ const newOrder = asyncHandler(async (req, res) => {
     shippingCharges,
     discount,
     total,
-    status,
     orderItems,
   } = req.body;
 
   if (
-    [
-      shippingInfo,
-      subTotal,
-      tax,
-      shippingCharges,
-      discount,
-      total,
-      orderItems,
-    ].some((val) => val == "" || val == undefined)
+    [shippingInfo, subTotal, tax, discount, total, orderItems].some(
+      (val) => val == "" || val == undefined
+    )
   ) {
-    throw new ApiError(400, "All fields are required");
+    return res.status(400).json(new ApiError(400, "All fields are required"));
   }
 
   const order = await Order.create({
@@ -40,7 +33,7 @@ const newOrder = asyncHandler(async (req, res) => {
     shippingCharges,
     discount,
     total,
-    status:"Processing",
+    status: "Processing",
     orderItems,
   });
   await inValidatorCache({ order: true });
@@ -53,7 +46,7 @@ const newOrder = asyncHandler(async (req, res) => {
 const myOrders = asyncHandler(async (req, res) => {
   const { id } = req.query;
   if (!id) {
-    throw new ApiError(404, "Provide a valid User id");
+    return res.status(404).json(new ApiError(404, "Provide a valid User id"));
   }
 
   let orders = [];
@@ -66,7 +59,9 @@ const myOrders = asyncHandler(async (req, res) => {
   }
 
   if (orders.length === 0) {
-    throw new ApiError(404, "No orders found for the specified user.");
+    return res
+      .status(404)
+      .json(new ApiError(404, "No orders found for the specified user."));
   }
 
   res
@@ -84,7 +79,9 @@ const getAllOrders = asyncHandler(async (req, res) => {
   }
 
   if (allOrders.length === 0) {
-    throw new ApiError(404, "No orders found for the specified user.");
+    return res
+      .status(404)
+      .json(new ApiError(404, "No orders found for the specified user."));
   }
   res
     .status(200)
@@ -95,13 +92,13 @@ const processOrders = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
-    throw new ApiError(404, "Provide valid order id");
+    return res.status(404).json(new ApiError(404, "Provide valid order id."));
   }
 
   const order = await Order.findById(id);
 
   if (!order) {
-    throw new ApiError(404, "Invalid Order id");
+    return res.status(404).json(new ApiError(404, "Invalid Order id."));
   }
 
   switch (order.status) {
@@ -126,7 +123,7 @@ const processOrders = asyncHandler(async (req, res) => {
 const getSingleOrder = asyncHandler(async (req, res) => {
   const { id } = req.params;
   if (!id) {
-    throw new ApiError(404, "Provide valid order id");
+    return res.status(404).json(new ApiError(404, "Provide valid order id."));
   }
 
   let order = [];
@@ -139,7 +136,7 @@ const getSingleOrder = asyncHandler(async (req, res) => {
   }
 
   if (!order) {
-    throw new ApiError(404, "Invalid Order id");
+    return res.status(404).json(new ApiError(404, "Invalid Order id."));
   }
 
   await res
@@ -151,7 +148,7 @@ const updateOrder = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
-    throw new ApiError(404, "Provide valid order id");
+    return res.status(404).json(new ApiError(404, "Provide valid order id."));
   }
   const {
     shippingInfo,
@@ -167,7 +164,7 @@ const updateOrder = asyncHandler(async (req, res) => {
   const order = await Order.findById(id);
 
   if (!order) {
-    throw new ApiError(404, "Invalid Order id");
+       return res.status(404).json(new ApiError(404, "Invalid order id."));
   }
 
   if (shippingInfo) order.shippingInfo = shippingInfo;
@@ -191,13 +188,13 @@ const deleteOrder = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
-    throw new ApiError(404, "Provide valid order id");
+    return res.status(404).json(new ApiError(404, "Provide valid order id."));
   }
 
   const order = await Order.findById(id);
 
   if (!order) {
-    throw new ApiError(404, "Invalid Order id");
+    return res.status(404).json(new ApiError(404, "Invalid order id."));
   }
 
   await Order.findByIdAndDelete(id);
