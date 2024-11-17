@@ -122,10 +122,8 @@ const getSingleProduct = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { name, price, stock, category } = req.body;
-  console.log(name, price, stock, category, "UPDATE");
+  const { name, price, stock, category, photo, description } = req.body;
 
-  const productImage = req.file;
   const Product = await product.findById(id);
 
   if (!Product) {
@@ -135,6 +133,9 @@ const updateProduct = asyncHandler(async (req, res) => {
   if (price) Product.price = price;
   if (stock) Product.stock = stock;
   if (category) Product.category = category;
+  if (photo) Product.photo = photo;
+  if (description) Product.description = description;
+
   await Product.save();
   await inValidatorCache({ Product: true });
 
@@ -161,7 +162,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 const getAllProducts = asyncHandler(async (req, res) => {
   const { search, sort, category, price } = req.query;
   console.log();
-  
+
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
@@ -213,4 +214,3 @@ export {
   deleteProduct,
   getAllProducts,
 };
-

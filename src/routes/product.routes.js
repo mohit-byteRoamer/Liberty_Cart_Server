@@ -30,7 +30,6 @@ router
   .put(
     verifyJWT,
     isAdmin,
-    upload.fields([{ name: "photo", maxCount: 1 }]),
     updateProduct
   )
   .delete(verifyJWT, isAdmin, deleteProduct);
