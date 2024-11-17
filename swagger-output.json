@@ -406,6 +406,11 @@
             "type": "string"
           },
           {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          },
+          {
             "name": "search",
             "in": "query",
             "type": "string"
@@ -468,6 +473,9 @@
                 },
                 "photo": {
                   "example": "any"
+                },
+                "description": {
+                  "example": "any"
                 }
               }
             }
@@ -476,6 +484,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "401": {
             "description": "Unauthorized"
@@ -591,6 +602,12 @@
                 },
                 "category": {
                   "example": "any"
+                },
+                "photo": {
+                  "example": "any"
+                },
+                "description": {
+                  "example": "any"
                 }
               }
             }
@@ -636,6 +653,111 @@
         }
       }
     },
+    "/api/v1/cart/update-cart": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "example": "any"
+                },
+                "action": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/cart/list": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/cart/delete/{id}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/v1/order/new": {
       "post": {
         "description": "",
@@ -654,9 +776,6 @@
                 "shippingInfo": {
                   "example": "any"
                 },
-                "user": {
-                  "example": "any"
-                },
                 "subTotal": {
                   "example": "any"
                 },
@@ -672,9 +791,6 @@
                 "total": {
                   "example": "any"
                 },
-                "status": {
-                  "example": "any"
-                },
                 "orderItems": {
                   "example": "any"
                 }
@@ -685,6 +801,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "401": {
             "description": "Unauthorized"
@@ -719,6 +838,9 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -742,6 +864,9 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -771,6 +896,9 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -800,6 +928,9 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -860,6 +991,9 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -887,6 +1021,9 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
