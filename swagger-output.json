@@ -1052,6 +1052,9 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -1090,6 +1093,12 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "409": {
+            "description": "Conflict"
           }
         }
       }
@@ -1117,15 +1126,7 @@
         }
       }
     },
-    "/api/v1/payment/{id}": {
-      "get": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
+    "/api/v1/payment/delete-coupons/{id}": {
       "delete": {
         "description": "",
         "parameters": [
@@ -1150,6 +1151,9 @@
           },
           "402": {
             "description": "Payment Required"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
