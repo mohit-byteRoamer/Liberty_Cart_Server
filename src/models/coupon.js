@@ -7,7 +7,7 @@ const Coupon = new Schema({
     unique: true,
   },
   amount: {
-    type: String,
+    type: Number,
     required: [true, "Amount is required"],
   },
 });

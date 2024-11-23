@@ -15,6 +15,10 @@ paymentRouter.route("/discount").get(verifyJWT, applyDiscount);
 // Admin Router
 paymentRouter.route("/coupon-create").post(verifyJWT, isAdmin, createCoupon);
 paymentRouter.route("/all-coupons").get(verifyJWT, isAdmin, getAllCoupon);
-paymentRouter.route("/:id").get().delete(verifyJWT, isAdmin, deleteCoupon);
+paymentRouter
+  .route("/delete-coupons/:id")
+  .delete(verifyJWT, isAdmin, deleteCoupon);
+
+// paymentRouter.route("/:id").get().delete(verifyJWT, isAdmin, deleteCoupon);
 
 export default paymentRouter;
