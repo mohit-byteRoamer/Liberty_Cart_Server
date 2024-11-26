@@ -15,6 +15,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   } else {
     const today = new Date();
     const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+   
     const startOfLastMonth = new Date(
       today.getFullYear(),
       today.getMonth() - 1,
@@ -111,6 +112,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
       count,
     };
     myCache.set(`admin-stats`, JSON.stringify(data));
+console.log(data, "data");
+
   }
 
   return res

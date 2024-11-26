@@ -10,7 +10,7 @@ import {
 const dashboard = Router();
 const middlewareArray = [verifyJWT, isAdmin];
 
-dashboard.route("/stats").get(verifyJWT, isAdmin, getDashboardStats);
+dashboard.route("/stats").get(...middlewareArray, getDashboardStats);
 dashboard.route("/pie").get(...middlewareArray, getPieCharts);
 dashboard.route("/bar").get(...middlewareArray, getBarCharts);
 dashboard.route("/line").get(...middlewareArray, getLineCharts);

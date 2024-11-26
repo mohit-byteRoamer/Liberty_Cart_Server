@@ -41,7 +41,7 @@ const deleteCoupon = asyncHandler(async (req, res) => {
 
   await res
     .status(200)
-    .json(new ApiResponse(200, "Coupons Deleted Successfully"));
+    .json(new ApiResponse(200, {}, "Coupons Deleted Successfully"));
 });
 
 const applyDiscount = asyncHandler(async (req, res) => {
