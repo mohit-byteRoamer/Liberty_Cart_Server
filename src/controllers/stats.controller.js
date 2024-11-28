@@ -8,113 +8,110 @@ import { calculatePercentage } from "../utils/global-function.js";
 import moment from "moment";
 
 const getDashboardStats = asyncHandler(async (req, res) => {
-  let data;
+  // let data;
 
-  if (myCache.has(`admin-stats`)) {
-    data = JSON.parse(myCache.get(`admin-stats`));
-  } else {
-    const today = new Date();
-    const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-   
-    const startOfLastMonth = new Date(
-      today.getFullYear(),
-      today.getMonth() - 1,
-      1
-    );
-    const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+  // if (myCache.has(`admin-stats`)) {
+  //   data = JSON.parse(myCache.get(`admin-stats`));
+  // } else {
+  // today, startOfLastMonth, endOfLastMonth, currentDate,
 
-    // Get the current date
-    const currentDate = moment();
+  const today = new Date();
+  const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // Subtract six months from the current date
-    const sixMonthsAgo = currentDate.subtract(6, "months");
+  const startOfLastMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() - 1,
+    1
+  );
+  const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
 
-    // Display the result
-    console.log("Six months ago:", sixMonthsAgo.format("YYYY-MM-DD"));
+  // Get the current date
+  const currentDate = moment();
 
-    const [
-      thisMonthUsers,
-      lastMonthUsers,
-      thisMonthProducts,
-      lastMonthProducts,
-      thisMonthOrders,
-      lastMonthOrders,
-      userCount,
-      productCount,
-      orderCount,
-    ] = await Promise.all([
-      user.find({
-        createdAt: { $gte: startOfThisMonth, $lte: today },
-      }),
-      user.find({
-        createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
-      }),
-      product.find({ createdAt: { $gte: startOfThisMonth, $lte: today } }),
-      product.find({
-        createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
-      }),
-      Order.find({ createdAt: { $gte: startOfThisMonth, $lte: today } }),
-      Order.find({
-        createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
-      }),
-      user.countDocuments(),
-      product.countDocuments(),
-      Order.find({}).select("total"),
-    ]);
+  // Subtract six months from the current date
+  const sixMonthsAgo = currentDate.subtract(6, "months");
 
-    const User = calculatePercentage(
-      thisMonthUsers.length,
-      lastMonthUsers.length
-    );
-    const Product = calculatePercentage(
-      thisMonthProducts.length,
-      lastMonthProducts.length
-    );
-    const order = calculatePercentage(
-      thisMonthOrders.length,
-      lastMonthOrders.length
-    );
+  // Display the result
+  console.log("Six months ago:", sixMonthsAgo.format("YYYY-MM-DD"));
 
-    const thisMonthRevenue = thisMonthOrders.reduce(
-      (total, order) => total + (order.total || 0),
-      0
-    );
-    const lastMonthRevenue = lastMonthOrders.reduce(
-      (total, order) => total + (order.total || 0),
-      0
-    );
+  const [
+    thisMonthUsers,
+    lastMonthUsers,
+    thisMonthProducts,
 
-    const statsRevenue = calculatePercentage(
-      thisMonthRevenue,
-      lastMonthRevenue
-    );
+    lastMonthProducts,
+    thisMonthOrders,
+    lastMonthOrders,
+    userCount,
+    productCount,
+    orderCount,
+  ] = await Promise.all([
+    user.find({
+      createdAt: { $gte: startOfThisMonth, $lte: today },
+    }),
+    user.find({
+      createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+    }),
+    product.find({ createdAt: { $gte: startOfThisMonth, $lte: today } }),
+    product.find({
+      createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+    }),
+    Order.find({ createdAt: { $gte: startOfThisMonth, $lte: today } }),
+    Order.find({
+      createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+    }),
+    user.countDocuments(),
+    product.countDocuments(),
+    Order.find({}).select("total"),
+  ]);
 
-    const stats = {
-      revenue: `${statsRevenue}%`,
-      user: `${User}%`,
-      product: `${Product}%`,
-      order: `${order}%`,
-    };
+  const User = calculatePercentage(
+    thisMonthUsers.length,
+    lastMonthUsers.length
+  );
+  const Product = calculatePercentage(
+    thisMonthProducts.length,
+    lastMonthProducts.length
+  );
+  const order = calculatePercentage(
+    thisMonthOrders.length,
+    lastMonthOrders.length
+  );
 
-    const countRevenue = orderCount.reduce(
-      (total, val) => total + val.total,
-      0
-    );
-    const count = {
-      revenue: countRevenue,
-      userCount,
-      productCount,
-      orderCount: orderCount.length,
-    };
+  const thisMonthRevenue = thisMonthOrders.reduce(
+    (total, order) => total + (Number(order.total) || 0),
+    0
+  );
 
-    const data = {
-      stats,
-      count,
-    };
-    myCache.set(`admin-stats`, JSON.stringify(data));
-console.log(data, "data");
+  const lastMonthRevenue = lastMonthOrders.reduce(
+    (total, order) => total + (Number(order.total) || 0),
+    0
+  );
 
-  }
+  const statsRevenue = calculatePercentage(thisMonthRevenue, lastMonthRevenue);
+
+  const stats = {
+    revenue: `${statsRevenue}%`,
+    user: `${User}%`,
+    product: `${Product}%`,
+    order: `${order}%`,
+  };
+
+  const countRevenue = orderCount.reduce((total, val) => total + val.total, 0);
+  const count = {
+    revenue: countRevenue,
+    userCount,
+    productCount,
+    orderCount: orderCount.length,
+  };
+
+  const data = {
+    stats,
+    count,
+  };
+  myCache.set(`admin-stats`, JSON.stringify(data));
+
+  // }
 
   return res
     .status(200)
@@ -124,17 +121,23 @@ console.log(data, "data");
 });
 
 const getPieCharts = asyncHandler(async (req, res) => {
-  let stats;
-  if (myCache.has(`admin-pie`)) {
-    stats = JSON.parse(myCache.get(`admin-pie`));
-  } else {
-    stats = await Order.findById(id).populate("user", "userName");
-    myCache.set(`admin-pie`, JSON.stringify(stats));
-  }
+  let charts;
 
+  const [processingOrders, shippedOrders, deliveredOrders] = await Promise.all([
+    Order.countDocuments({ status: "Processing" }),
+    Order.countDocuments({ status: "Shipped" }),
+    Order.countDocuments({ status: "Delivered" }),
+  ]);
+charts = {
+  orderFullFillment: {
+    processingOrders,
+    shippedOrders,
+    deliveredOrders,
+  },
+};
   return res
-    .stats(200)
-    .json(new ApiResponse(200, stats, "Pie Chart Data Fetched Successfully"));
+    .status(200)
+    .json(new ApiResponse(200, charts, "Pie Chart Data Fetched Successfully"));
 });
 const getBarCharts = asyncHandler(async (req, res) => {
   let stats;
