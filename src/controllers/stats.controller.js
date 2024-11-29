@@ -45,6 +45,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     userCount,
     productCount,
     orderCount,
+    categories,
+    topTransaction,
   ] = await Promise.all([
     user.find({
       createdAt: { $gte: startOfThisMonth, $lte: today },
@@ -63,6 +65,18 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     user.countDocuments(),
     product.countDocuments(),
     Order.find({}).select("total"),
+    product.distinct("category"),
+    Order.aggregate([
+      {
+        $project: {
+          discount: 1,
+          total: 1,
+          status: 1,
+          orderItemsLength: { $size: "$orderItems" }, // Add the length of orderItems
+        },
+      },
+      { $limit: 4 }, // Limit the results to 4
+    ]),
   ]);
 
   const User = calculatePercentage(
@@ -105,13 +119,24 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     orderCount: orderCount.length,
   };
 
+  const categoriesCount = await Promise.all(
+    categories.map(async (item) => ({
+      label: item,
+      length:
+        Math.round(
+          ((await product.countDocuments({ category: item })) / productCount) *
+            100
+        ) + "%",
+    }))
+  );
+
   const data = {
     stats,
+    inventory: categoriesCount,
     count,
+    topTransaction,
   };
   myCache.set(`admin-stats`, JSON.stringify(data));
-
-  // }
 
   return res
     .status(200)
@@ -123,18 +148,46 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 const getPieCharts = asyncHandler(async (req, res) => {
   let charts;
 
-  const [processingOrders, shippedOrders, deliveredOrders] = await Promise.all([
-    Order.countDocuments({ status: "Processing" }),
-    Order.countDocuments({ status: "Shipped" }),
-    Order.countDocuments({ status: "Delivered" }),
-  ]);
-charts = {
-  orderFullFillment: {
+  const [
     processingOrders,
     shippedOrders,
     deliveredOrders,
-  },
-};
+    categories,
+    productCount,
+    productOutOfStock,
+  ] = await Promise.all([
+    Order.countDocuments({ status: "Processing" }),
+    Order.countDocuments({ status: "Shipped" }),
+    Order.countDocuments({ status: "Delivered" }),
+    product.distinct("category"),
+    product.countDocuments(),
+    product.countDocuments({ stock: 0 }),
+  ]);
+
+  const productCategory = await Promise.all(
+    categories.map(async (item) => ({
+      label: item,
+      length:
+        Math.round(
+          ((await product.countDocuments({ category: item })) / productCount) *
+            100
+        ) + "%",
+    }))
+  );
+
+  const stockAvailability = {
+    inStock: productCount - productOutOfStock,
+    outOfStock: productOutOfStock
+  };
+  charts = {
+    orderFullFillment: {
+      processingOrders,
+      shippedOrders,
+      deliveredOrders,
+    },
+    productCategory,
+    stockAvailability,
+  };
   return res
     .status(200)
     .json(new ApiResponse(200, charts, "Pie Chart Data Fetched Successfully"));
