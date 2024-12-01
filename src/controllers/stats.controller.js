@@ -244,6 +244,7 @@ const getPieCharts = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, charts, "Pie Chart Data Fetched Successfully"));
 });
+
 const getBarCharts = asyncHandler(async (req, res) => {
   const date = new Date();
 
@@ -259,7 +260,6 @@ const getBarCharts = asyncHandler(async (req, res) => {
       user.find({ createdAt: { $gte: sixMonthsAgo, $lte: date } }),
       Order.find({ createdAt: { $gte: twelveMonthsAgo, $lte: date } }),
     ]);
-
 
   const productsCount = getChartData({
     docArray: sixMonthsProducts,
@@ -284,23 +284,63 @@ const getBarCharts = asyncHandler(async (req, res) => {
     usersCount,
     ordersCount,
   };
-console.log(chart, "chart");
 
   return res
     .status(200)
     .json(new ApiResponse(200, chart, "Bar Chart Data Fetched Successfully"));
 });
+
 const getLineCharts = asyncHandler(async (req, res) => {
-  let stats;
-  if (myCache.has(`admin-line`)) {
-    stats = JSON.parse(myCache.get(`admin-line`));
-  } else {
-    stats = await Order.findById(id).populate("user", "userName");
-    myCache.set(`admin-line`, JSON.stringify(stats));
-  }
+  const date = new Date();
+
+  let twelveMonthsAgo = new Date(date);
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+  const baseQuery = { createdAt: { $gte: twelveMonthsAgo, $lte: date } };
+
+  const [twelveMonthsProducts, twelveMonthsUsers, twelveMonthsOrders] =
+    await Promise.all([
+      product.find(baseQuery),
+      user.find(baseQuery),
+      Order.find(baseQuery),
+    ]);
+
+  const productsCount = getChartData({
+    docArray: twelveMonthsProducts,
+    length: 12,
+    today: date,
+  });
+
+  const usersCount = getChartData({
+    docArray: twelveMonthsUsers,
+    length: 12,
+    today: date,
+  });
+
+  const discount = getChartData({
+    docArray: twelveMonthsOrders,
+    length: 12,
+    today: date,
+    property: "discount",
+  });
+
+  const revenue = getChartData({
+    docArray: twelveMonthsOrders,
+    length: 12,
+    today: date,
+    property: "total",
+  });
+
+  const chart = {
+    productsCount,
+    usersCount,
+    discount,
+    revenue,
+  };
+
   return res
-    .stats(200)
-    .json(new ApiResponse(200, stats, "Line Chart Data Fetched Successfully"));
+    .status(200)
+    .json(new ApiResponse(200, chart, "Line Chart Data Fetched Successfully"));
 });
 
 export { getDashboardStats, getPieCharts, getBarCharts, getLineCharts };
