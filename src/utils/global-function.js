@@ -4,4 +4,22 @@ const calculatePercentage = (thisMonth, lastMonth) => {
   return percent.toFixed(0);
 };
 
-export { calculatePercentage };
+const getChartData = ({ length, docArray, today }) => {
+  const data = new Array(length).fill(0);
+
+  docArray.forEach((element) => {
+    const creationDate = new Date(element.createdAt); 
+    const monthDiff =
+      (today.getFullYear() - creationDate.getFullYear()) * 12 +
+      today.getMonth() -
+      creationDate.getMonth();
+
+    if (monthDiff >= 0 && monthDiff < length) {
+      data[length - monthDiff - 1] += 1;
+    }
+  });
+
+  return data;
+};
+
+export { calculatePercentage, getChartData };

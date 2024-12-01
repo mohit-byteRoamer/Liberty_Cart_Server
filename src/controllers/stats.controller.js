@@ -4,7 +4,7 @@ import { product } from "../models/product.modal.js";
 import { user } from "../models/user.modal.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { calculatePercentage } from "../utils/global-function.js";
+import { calculatePercentage, getChartData } from "../utils/global-function.js";
 import moment from "moment";
 
 const getDashboardStats = asyncHandler(async (req, res) => {
@@ -155,6 +155,9 @@ const getPieCharts = asyncHandler(async (req, res) => {
     categories,
     productCount,
     productOutOfStock,
+    allOrders,
+    allAdmins,
+    allUsers,
   ] = await Promise.all([
     Order.countDocuments({ status: "Processing" }),
     Order.countDocuments({ status: "Shipped" }),
@@ -162,7 +165,22 @@ const getPieCharts = asyncHandler(async (req, res) => {
     product.distinct("category"),
     product.countDocuments(),
     product.countDocuments({ stock: 0 }),
+    Order.find({}).select([
+      "subtotal",
+      "tax",
+      "shippingCharges",
+      "discount",
+      "total",
+    ]),
+    user.countDocuments({ role: "admin" }),
+    user.countDocuments({ role: "user" }),
   ]);
+
+  const orderFullFillment = {
+    processingOrders,
+    shippedOrders,
+    deliveredOrders,
+  };
 
   const productCategory = await Promise.all(
     categories.map(async (item) => ({
@@ -177,32 +195,100 @@ const getPieCharts = asyncHandler(async (req, res) => {
 
   const stockAvailability = {
     inStock: productCount - productOutOfStock,
-    outOfStock: productOutOfStock
+    outOfStock: productOutOfStock,
   };
+
+  const grossIncome = allOrders.reduce(
+    (pre, order) => pre + (order.total || 0),
+    0
+  );
+
+  const discount = allOrders.reduce(
+    (pre, order) => pre + (order.discount || 0),
+    0
+  );
+
+  const productionCost = allOrders.reduce(
+    (pre, order) => pre + (order.shippingCharges || 0),
+    0
+  );
+
+  const burnt = allOrders.reduce((pre, order) => pre + (order.tax || 0), 0);
+
+  const markettingCost = Math.round(grossIncome * (30 / 100));
+
+  const netMargin =
+    grossIncome - discount - productionCost - burnt - markettingCost;
+  const revenueDistribution = {
+    netMargin,
+    discount,
+    productionCost,
+    burnt,
+    markettingCost,
+  };
+
+  const adminUsers = {
+    allAdmins,
+    allUsers,
+  };
+
   charts = {
-    orderFullFillment: {
-      processingOrders,
-      shippedOrders,
-      deliveredOrders,
-    },
+    orderFullFillment,
     productCategory,
     stockAvailability,
+    revenueDistribution,
+    adminUsers,
   };
+
   return res
     .status(200)
     .json(new ApiResponse(200, charts, "Pie Chart Data Fetched Successfully"));
 });
 const getBarCharts = asyncHandler(async (req, res) => {
-  let stats;
-  if (myCache.has(`admin-bar`)) {
-    stats = JSON.parse(myCache.get(`admin-bar`));
-  } else {
-    stats = await Order.findById(id).populate("user", "userName");
-    myCache.set(`admin-bar`, JSON.stringify(stats));
-  }
+  const date = new Date();
+
+  let sixMonthsAgo = new Date(date);
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  let twelveMonthsAgo = new Date(date);
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+  const [sixMonthsProducts, sixMonthsUsers, twelveMonthsOrders] =
+    await Promise.all([
+      product.find({ createdAt: { $gte: sixMonthsAgo, $lte: date } }),
+      user.find({ createdAt: { $gte: sixMonthsAgo, $lte: date } }),
+      Order.find({ createdAt: { $gte: twelveMonthsAgo, $lte: date } }),
+    ]);
+
+
+  const productsCount = getChartData({
+    docArray: sixMonthsProducts,
+    length: 6,
+    today: date,
+  });
+
+  const usersCount = getChartData({
+    docArray: sixMonthsUsers,
+    length: 6,
+    today: date,
+  });
+
+  const ordersCount = getChartData({
+    docArray: twelveMonthsOrders,
+    length: 6,
+    today: date,
+  });
+
+  const chart = {
+    productsCount,
+    usersCount,
+    ordersCount,
+  };
+console.log(chart, "chart");
+
   return res
-    .stats(200)
-    .json(new ApiResponse(200, stats, "Bar Chart Data Fetched Successfully"));
+    .status(200)
+    .json(new ApiResponse(200, chart, "Bar Chart Data Fetched Successfully"));
 });
 const getLineCharts = asyncHandler(async (req, res) => {
   let stats;
