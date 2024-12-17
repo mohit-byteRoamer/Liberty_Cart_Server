@@ -1,7 +1,32 @@
+import { stripe } from "../app.js";
 import coupon from "../models/coupon.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+
+let createPayment = asyncHandler(async (req, res) => {
+  const { amount } = req.body;
+console.log(req.body,"CEKJNAKJ");
+
+  if (!amount) {
+    return res.status(404).json(new ApiError(400, "Please enter valid amount"));
+  }
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount,
+    currency: "inr",
+  });
+
+  await res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { clientSecret: paymentIntent },
+        "Coupon Created Successfully"
+      )
+    );
+});
 
 const createCoupon = asyncHandler(async (req, res) => {
   const { code, amount } = req.body;
@@ -57,4 +82,10 @@ const applyDiscount = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, Coupon.amount, "Discount Apply Successfully"));
 });
 
-export { createCoupon, getAllCoupon, deleteCoupon, applyDiscount };
+export {
+  createPayment,
+  createCoupon,
+  getAllCoupon,
+  deleteCoupon,
+  applyDiscount,
+};

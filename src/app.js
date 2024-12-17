@@ -14,9 +14,11 @@ import dashboard from "./routes/stats.routes.js";
 import setupSwagger from "../swaggerSetup.js";
 import commonRouter from "./routes/common.routes.js";
 import cartRouter from "./routes/cart.routes.js";
+import Stripe from "stripe";
 
 export const myCache = new NodeCache();
-
+const stripeKey = process.env.STRIPE_API_KEY;
+export const stripe = new Stripe(stripeKey);
 const app = express();
 const apiVersion = "/api/v1";
 app.use(
@@ -25,6 +27,7 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(bodyParser.json({ limit: "16kb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));

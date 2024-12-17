@@ -2,12 +2,16 @@ import { Router } from "express";
 import {
   applyDiscount,
   createCoupon,
+  createPayment,
   deleteCoupon,
   getAllCoupon,
 } from "../controllers/payment.controller.js";
 import { isAdmin, verifyJWT } from "../middlewares/auth.middlewares.js";
 
 const paymentRouter = Router();
+
+// Create Payment
+paymentRouter.route("/create").post(verifyJWT, createPayment);
 
 // User Router
 paymentRouter.route("/discount").get(verifyJWT, applyDiscount);
